@@ -42,6 +42,7 @@ void AppAiAgent::onOpen()
     // Request to start Xiaozhi service
     // All apps will be uninstall in next mooncake update
     GetHAL().requestXiaozhiStart();
+    GetHAL().setAgentRgbRainbowEnabled(true);
 }
 
 // Called repeatedly while the App is running
@@ -54,4 +55,7 @@ void AppAiAgent::onRunning()
 void AppAiAgent::onClose()
 {
     mclog::tagInfo(getAppInfo().name, "on close");
+    if (!GetHAL().isXiaozhiStartRequested()) {
+        GetHAL().setAgentRgbRainbowEnabled(false);
+    }
 }

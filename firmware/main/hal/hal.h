@@ -210,6 +210,7 @@ public:
     void setRgbColor(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
     void showRgbColor(uint8_t r, uint8_t g, uint8_t b);
     void refreshRgb();
+    void setAgentRgbRainbowEnabled(bool enabled);
 
     /* ---------------------------------- Power --------------------------------- */
     void setServoPowerEnabled(bool enabled);
@@ -283,6 +284,7 @@ private:
     void servo_init();
     void head_touch_init();
     void io_expander_init();
+    void agent_rgb_init();
     void imu_init();
     void rtc_init();
 };

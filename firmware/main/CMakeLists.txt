@@ -15,6 +15,8 @@ file(GLOB_RECURSE STACK_CHAN_SOURCES
     "stackchan/*.cc"
     "stackchan/*.cpp"
 )
+list(APPEND STACK_CHAN_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/hal/hal_agent_rgb.cpp")
+list(REMOVE_DUPLICATES STACK_CHAN_SOURCES)
 set(STACK_CHAN_INCLUDE_DIRS 
     "."
 )

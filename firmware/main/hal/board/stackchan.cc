@@ -448,7 +448,7 @@ public:
         charging                     = pmic_->IsCharging();
         discharging                  = pmic_->IsDischarging();
         if (discharging != last_discharging) {
-            power_save_timer_->SetEnabled(discharging);
+            power_save_timer_->SetEnabled(discharging && !hal_bridge::is_ai_agent_sleep_disabled());
             last_discharging = discharging;
         }
 
@@ -458,6 +458,12 @@ public:
 
     virtual void SetPowerSaveLevel(PowerSaveLevel level) override
     {
+        if (hal_bridge::is_ai_agent_sleep_disabled()) {
+            power_save_timer_->SetEnabled(false);
+            WifiBoard::SetPowerSaveLevel(PowerSaveLevel::PERFORMANCE);
+            return;
+        }
+
         if (level != PowerSaveLevel::LOW_POWER) {
             power_save_timer_->WakeUp();
         }
