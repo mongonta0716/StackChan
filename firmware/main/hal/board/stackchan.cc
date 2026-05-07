@@ -183,12 +183,29 @@ public:
         delete[] read_buffer_;
     }
 
-    void UpdateTouchPoint()
+    bool UpdateTouchPoint()
     {
-        ReadRegs(0x02, read_buffer_, 6);
-        tp_.num = read_buffer_[0] & 0x0F;
-        tp_.x   = ((read_buffer_[1] & 0x0F) << 8) | read_buffer_[2];
-        tp_.y   = ((read_buffer_[3] & 0x0F) << 8) | read_buffer_[4];
+        auto err = TryReadRegs(0x02, read_buffer_, 6);
+        if (err != ESP_OK) {
+            tp_.num = 0;
+            tp_.x   = -1;
+            tp_.y   = -1;
+
+            consecutive_failures_++;
+            int64_t now_us = esp_timer_get_time();
+            if (last_error_log_us_ == 0 || (now_us - last_error_log_us_) >= 1000 * 1000) {
+                ESP_LOGW(TAG, "FT6336 read failed (%s), skipped %lu sample(s)", esp_err_to_name(err),
+                         static_cast<unsigned long>(consecutive_failures_));
+                last_error_log_us_ = now_us;
+            }
+            return false;
+        }
+
+        consecutive_failures_ = 0;
+        tp_.num               = read_buffer_[0] & 0x0F;
+        tp_.x                 = ((read_buffer_[1] & 0x0F) << 8) | read_buffer_[2];
+        tp_.y                 = ((read_buffer_[3] & 0x0F) << 8) | read_buffer_[4];
+        return true;
     }
 
     inline const TouchPoint_t& GetTouchPoint()
@@ -199,6 +216,8 @@ public:
 private:
     uint8_t* read_buffer_ = nullptr;
     TouchPoint_t tp_;
+    int64_t last_error_log_us_     = 0;
+    uint32_t consecutive_failures_ = 0;
 };
 
 class M5StackCoreS3Board : public WifiBoard {
@@ -283,7 +302,9 @@ private:
 
     void PollTouchpad()
     {
-        ft6336_->UpdateTouchPoint();
+        if (!ft6336_->UpdateTouchPoint()) {
+            return;
+        }
         auto& touch_point = ft6336_->GetTouchPoint();
 
         // Update hal touch point
