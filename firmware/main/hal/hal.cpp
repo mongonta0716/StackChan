@@ -202,6 +202,23 @@ void Hal::startXiaozhi()
     hal_bridge::start_xiaozhi_app();
 }
 
+XiaozhiConfig_t Hal::getXiaozhiConfig()
+{
+    auto bridge_config = hal_bridge::get_xiaozhi_config();
+    return XiaozhiConfig_t{
+        .idleShutdownTimeSeconds   = bridge_config.idleShutdownTimeSeconds,
+        .allowShutdownWhenCharging = bridge_config.allowShutdownWhenCharging,
+    };
+}
+
+void Hal::setXiaozhiConfig(XiaozhiConfig_t config)
+{
+    hal_bridge::set_xiaozhi_config({
+        .idleShutdownTimeSeconds   = config.idleShutdownTimeSeconds,
+        .allowShutdownWhenCharging = config.allowShutdownWhenCharging,
+    });
+}
+
 uint8_t Hal::getBatteryLevel()
 {
     return hal_bridge::board_get_battery_level();
