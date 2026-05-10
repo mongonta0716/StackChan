@@ -71,6 +71,9 @@ public:
 
     void set_angle_impl(int angle) override
     {
+        angle = uitk::clamp(angle, getAngleLimit().x, getAngleLimit().y);
+        _last_known_angle = angle;
+
         int mapped_angle = _zero_pos + angle * 16 / 5 / 10;  // 一步对应 0.3125度, 0.3125 = 5/16
         mapped_angle     = uitk::clamp(mapped_angle, _config.rawPosLimit.x, _config.rawPosLimit.y);
 
@@ -83,8 +86,19 @@ public:
     int getCurrentAngle() override
     {
         int current_pos = _scs_bus.ReadPos(_config.id);
+        if (current_pos < 0) {
+            uint32_t now = GetHAL().millis();
+            if (now - _last_read_error_log_tick > 1000) {
+                mclog::tagWarn(_tag, "id: {} failed to read position, using last angle: {}", _config.id,
+                               _last_known_angle);
+                _last_read_error_log_tick = now;
+            }
+            return _last_known_angle;
+        }
+
         int angle       = (current_pos - _zero_pos) * 5 * 10 / 16;
         angle           = uitk::clamp(angle, getAngleLimit().x, getAngleLimit().y);
+        _last_known_angle = angle;
         // mclog::tagInfo(_tag, "id: {} current pos: {} angle: {}", _id, current_pos, angle);
         return angle;
     }
@@ -148,8 +162,10 @@ private:
     enum class Mode { Position = 0, PWM = 1 };
 
     ServoConfig_t _config;
-    int _zero_pos      = 0;
-    Mode _current_mode = Mode::Position;
+    int _zero_pos                     = 0;
+    int _last_known_angle             = 0;
+    uint32_t _last_read_error_log_tick = 0;
+    Mode _current_mode                = Mode::Position;
 
     void check_mode(Mode targetMode)
     {
