@@ -74,6 +74,24 @@ void set_xiaozhi_mode(bool mode)
     _data.isXiaozhiMode = mode;
 }
 
+bool is_ai_agent_sleep_disabled()
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    return _data.isAiAgentSleepDisabled;
+}
+
+void set_ai_agent_sleep_disabled(bool disabled)
+{
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _data.isAiAgentSleepDisabled = disabled;
+    }
+
+    if (disabled) {
+        Board::GetInstance().SetPowerSaveLevel(PowerSaveLevel::PERFORMANCE);
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                   Display                                  */
 /* -------------------------------------------------------------------------- */

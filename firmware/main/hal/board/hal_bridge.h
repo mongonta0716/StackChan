@@ -22,6 +22,7 @@ struct Data_t {
     TouchPoint_t touchPoint;
     bool isXiaozhiMode              = false;
     bool isXiaozhiModeToggleEnabled = false;
+    bool isAiAgentSleepDisabled     = false;
 };
 
 struct XiaozhiConfig_t {
@@ -38,6 +39,8 @@ TouchPoint_t get_touch_point();
 
 bool is_xiaozhi_mode();
 void set_xiaozhi_mode(bool mode);
+bool is_ai_agent_sleep_disabled();
+void set_ai_agent_sleep_disabled(bool disabled);
 void toggle_xiaozhi_chat_state();
 
 void disply_lvgl_lock();

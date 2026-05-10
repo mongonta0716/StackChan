@@ -36,10 +36,12 @@ void Hal::init()
     xiaozhi_mcp_init();
     head_touch_init();
     io_expander_init();
+    agent_rgb_init();
     rtc_init();
     imu_init();
     servo_init();
     lvgl_init();
+    setAgentRgbRainbowEnabled(true);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -179,6 +181,8 @@ static void _stackchan_update_task(void* param)
 void Hal::startXiaozhi()
 {
     mclog::tagInfo(_tag, "start xiaozhi");
+    hal_bridge::set_ai_agent_sleep_disabled(true);
+    setAgentRgbRainbowEnabled(true);
 
     auto& motion = GetStackChan().motion();
     motion.setAutoAngleSyncEnabled(true);
