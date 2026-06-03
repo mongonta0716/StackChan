@@ -165,6 +165,38 @@ private:
  * @brief
  *
  */
+class MicTestWorker : public WorkerBase {
+public:
+    MicTestWorker();
+    ~MicTestWorker();
+    void update() override;
+
+private:
+    void update_button_text();
+    void update_button_state();
+    void update_button_color();
+    void update_waveform();
+
+    std::unique_ptr<uitk::lvgl_cpp::Container> _panel;
+    std::unique_ptr<uitk::lvgl_cpp::Chart> _chart_waveform;
+    std::unique_ptr<uitk::lvgl_cpp::Button> _btn_test;
+    std::unique_ptr<uitk::lvgl_cpp::Button> _btn_back;
+
+    MicTestStatus _status        = MicTestStatus::Done;
+    bool _test_flag              = false;
+    bool _back_flag              = false;
+    bool _is_testing             = false;
+    int _waveform_series         = -1;
+    uint8_t _original_volume     = 80;
+    uint32_t _last_waveform_tick = 0;
+    std::string _error_message;
+    std::vector<int16_t> _waveform_frame;
+};
+
+/**
+ * @brief
+ *
+ */
 class StartupWorker : public WorkerBase {
 public:
     class PageStartup {
@@ -309,9 +341,12 @@ private:
 
     std::unique_ptr<uitk::lvgl_cpp::Container> _panel;
     std::unique_ptr<uitk::lvgl_cpp::Container> _panel_general;
+    std::unique_ptr<uitk::lvgl_cpp::Container> _panel_startup;
     std::unique_ptr<uitk::lvgl_cpp::Label> _label_idle_motion_title;
     std::unique_ptr<uitk::lvgl_cpp::Label> _label_idle_motion_value;
     std::unique_ptr<uitk::lvgl_cpp::Slider> _slider_idle_motion;
+    std::unique_ptr<uitk::lvgl_cpp::Label> _label_startup_title;
+    std::unique_ptr<uitk::lvgl_cpp::Switch> _switch_start_ai_on_boot;
     std::unique_ptr<uitk::lvgl_cpp::Button> _btn_confirm;
 
     XiaozhiConfig_t _config;
